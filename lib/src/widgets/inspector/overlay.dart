@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import '../components/box_info_widget.dart';
 import 'box_info.dart';
 
@@ -7,10 +8,14 @@ class InspectorOverlay extends StatefulWidget {
     Key? key,
     required this.size,
     required this.boxInfo,
+    this.hoveredBoxInfo,
+    this.comparedBoxInfo,
   }) : super(key: key);
 
   final Size size;
   final BoxInfo? boxInfo;
+  final BoxInfo? hoveredBoxInfo;
+  final BoxInfo? comparedBoxInfo;
 
   @override
   _InspectorOverlayState createState() => _InspectorOverlayState();
@@ -41,11 +46,12 @@ class _InspectorOverlayState extends State<InspectorOverlay> {
     );
   }
 
-  bool get _canRender => widget.boxInfo?.targetRenderBox.attached ?? false;
+  bool _canRender(BoxInfo? boxInfo) =>
+      boxInfo?.targetRenderBox.attached ?? false;
 
   @override
   Widget build(BuildContext context) {
-    if (!_canRender) {
+    if (!_canRender(widget.boxInfo) && !_canRender(widget.hoveredBoxInfo)) {
       return const SizedBox.shrink();
     }
 
@@ -55,7 +61,9 @@ class _InspectorOverlayState extends State<InspectorOverlay> {
       child: ValueListenableBuilder(
         valueListenable: _panelVisibilityNotifier,
         builder: (context, bool isVisible, _) => BoxInfoWidget(
-          boxInfo: widget.boxInfo!,
+          boxInfo: widget.boxInfo,
+          hoveredBoxInfo: widget.hoveredBoxInfo,
+          comparedBoxInfo: widget.comparedBoxInfo,
           isPanelVisible: isVisible,
           onPanelVisibilityChanged: (v) => _panelVisibilityNotifier.value = v,
         ),

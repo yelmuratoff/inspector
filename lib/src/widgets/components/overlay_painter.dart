@@ -1,4 +1,5 @@
 import 'package:flutter/widgets.dart';
+
 import '../inspector/box_info.dart';
 
 class OverlayPainter extends CustomPainter {
@@ -9,11 +10,11 @@ class OverlayPainter extends CustomPainter {
   });
 
   final BoxInfo boxInfo;
-
   final Color targetRectColor;
   final Color containerRectColor;
 
   Paint get targetRectPaint => Paint()..color = targetRectColor;
+
   Paint get containerRectPaint => Paint()..color = containerRectColor;
 
   @override

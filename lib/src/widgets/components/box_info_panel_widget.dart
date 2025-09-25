@@ -13,11 +13,13 @@ class BoxInfoPanelWidget extends StatelessWidget {
     required this.containerColor,
     required this.onVisibilityChanged,
     this.isVisible = true,
+    this.comparedBoxInfo,
   }) : super(key: key);
 
   final bool isVisible;
   final ValueChanged<bool> onVisibilityChanged;
   final BoxInfo boxInfo;
+  final BoxInfo? comparedBoxInfo;
   final Color targetColor;
   final Color containerColor;
 
@@ -80,7 +82,7 @@ class BoxInfoPanelWidget extends StatelessWidget {
           icon: Icons.format_shapes,
           subtitle: 'size',
           child: Text(
-            '${boxInfo.targetRect.width} × ${boxInfo.targetRect.height}',
+            '${boxInfo.targetRect.width.toStringAsFixed(1)} × ${boxInfo.targetRect.height.toStringAsFixed(1)}',
           ),
           backgroundColor: theme.chipTheme.backgroundColor,
         ),
@@ -89,6 +91,56 @@ class BoxInfoPanelWidget extends StatelessWidget {
           icon: Icons.straighten,
           subtitle: 'padding (LTRB)',
           child: Text(boxInfo.describePadding()),
+          backgroundColor: theme.chipTheme.backgroundColor,
+        ),
+      ],
+    );
+  }
+
+  Widget _buildComparedRow(BuildContext context) {
+    final theme = Theme.of(context);
+    final from = boxInfo.targetRect;
+    final to = comparedBoxInfo!.targetRect;
+
+    double left = 0, right = 0, top = 0, bottom = 0;
+
+    // Horizontal distances
+    if (from.right <= to.left) {
+      // from is left of to
+      right = to.left - from.right;
+    } else if (to.right <= from.left) {
+      // from is right of to
+      left = from.left - to.right;
+    } else {
+      // They overlap horizontally
+      left = (from.left - to.left).abs();
+      right = (from.right - to.right).abs();
+    }
+
+    // Vertical distances
+    if (from.bottom <= to.top) {
+      // from is above to
+      bottom = to.top - from.bottom;
+    } else if (to.bottom <= from.top) {
+      // from is below to
+      top = from.top - to.bottom;
+    } else {
+      // They overlap vertically
+      top = (from.top - to.top).abs();
+      bottom = (from.bottom - to.bottom).abs();
+    }
+
+    return Wrap(
+      spacing: 12.0,
+      runSpacing: 8.0,
+      children: [
+        _buildInfoRow(
+          context,
+          icon: Icons.open_with,
+          subtitle: 'Distances (LTRB)',
+          child: Text(
+            '${left.toStringAsFixed(1)}, ${top.toStringAsFixed(1)}, ${right.toStringAsFixed(1)}, ${bottom.toStringAsFixed(1)}',
+          ),
           backgroundColor: theme.chipTheme.backgroundColor,
         ),
       ],
@@ -126,12 +178,10 @@ class BoxInfoPanelWidget extends StatelessWidget {
           icon: Icons.palette,
           subtitle: 'color',
           backgroundColor: theme.chipTheme.backgroundColor,
-          iconColor: decoration.color,
           child: Text(
             decoration.color != null
                 ? '#${colorToHexString(decoration.color!, withAlpha: true)}'
                 : 'n/a',
-            style: TextStyle(color: decoration.color),
           ),
         ),
       ],
@@ -195,6 +245,13 @@ class BoxInfoPanelWidget extends StatelessWidget {
         ),
         _buildInfoRow(
           context,
+          icon: Icons.horizontal_distribute,
+          subtitle: 'Letter Spacing',
+          backgroundColor: theme.chipTheme.backgroundColor,
+          child: Text(style.letterSpacing?.toStringAsFixed(1) ?? 'n/a'),
+        ),
+        _buildInfoRow(
+          context,
           icon: Icons.line_weight,
           subtitle: 'weight',
           backgroundColor: theme.chipTheme.backgroundColor,
@@ -245,8 +302,14 @@ class BoxInfoPanelWidget extends StatelessWidget {
             children: [
               // const SizedBox(height: 4.0),
               // _buildSizeRow(context),
-              if (boxInfo.containerRect != null) ...[
-                _buildMainRow(context),
+              _buildMainRow(context),
+              if (boxInfo.targetRenderBox.attached == true &&
+                  comparedBoxInfo?.targetRenderBox.attached == true) ...[
+                Divider(
+                  height: 16.0,
+                  color: theme.dividerColor,
+                ),
+                _buildComparedRow(context),
               ],
               if (boxInfo.targetRenderBox is RenderParagraph) ...[
                 Divider(

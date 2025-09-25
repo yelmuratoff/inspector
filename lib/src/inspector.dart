@@ -47,6 +47,7 @@ class Inspector extends StatefulWidget {
     this.areKeyboardShortcutsEnabled = true,
     this.isPanelVisible = true,
     this.isWidgetInspectorEnabled = true,
+    this.isWidgetInspectAndCompareEnabled = true,
     this.isColorPickerEnabled = true,
     this.isColorPickerColorSchemeHintEnabled = true,
     this.isZoomEnabled = true,
@@ -57,6 +58,9 @@ class Inspector extends StatefulWidget {
       LogicalKeyboardKey.meta,
       LogicalKeyboardKey.metaLeft,
       LogicalKeyboardKey.metaRight,
+    ],
+    this.widgetInspectAndCompareShortcuts = const [
+      LogicalKeyboardKey.keyY,
     ],
     this.colorPickerShortcuts = const [
       LogicalKeyboardKey.shift,
@@ -73,11 +77,13 @@ class Inspector extends StatefulWidget {
   final bool areKeyboardShortcutsEnabled;
   final bool isPanelVisible;
   final bool isWidgetInspectorEnabled;
+  final bool isWidgetInspectAndCompareEnabled;
   final bool isColorPickerEnabled;
   final bool isZoomEnabled;
   final bool isColorPickerColorSchemeHintEnabled;
   final Alignment alignment;
   final List<LogicalKeyboardKey> widgetInspectorShortcuts;
+  final List<LogicalKeyboardKey> widgetInspectAndCompareShortcuts;
   final List<LogicalKeyboardKey> colorPickerShortcuts;
   final List<LogicalKeyboardKey> zoomShortcuts;
   final bool? isEnabled;
@@ -105,6 +111,7 @@ class Inspector extends StatefulWidget {
 
 class InspectorState extends State<Inspector> {
   bool _isPanelVisible = false;
+
   bool get isPanelVisible => _isPanelVisible;
 
   void togglePanelVisibility() =>
@@ -118,7 +125,10 @@ class InspectorState extends State<Inspector> {
   final _byteDataStateNotifier = ValueNotifier<ByteData?>(null);
 
   final _currentRenderBoxNotifier = ValueNotifier<BoxInfo?>(null);
+  final _hoveredRenderBoxNotifier = ValueNotifier<BoxInfo?>(null);
+  final _comparedRenderBoxNotifier = ValueNotifier<BoxInfo?>(null);
 
+  final _inspectAndCompareStateNotifier = ValueNotifier<bool>(false);
   final _inspectorStateNotifier = ValueNotifier<bool>(false);
   final _colorPickerStateNotifier = ValueNotifier<bool>(false);
   final _zoomStateNotifier = ValueNotifier<bool>(false);
@@ -141,16 +151,42 @@ class InspectorState extends State<Inspector> {
 
     _keyboardHandler = KeyboardHandler(
       onInspectorStateChanged: _onInspectorStateChanged,
+      onInspectAndCompareChanged: _onInspectAndCompareChanged,
       onColorPickerStateChanged: _onColorPickerStateChanged,
       onZoomStateChanged: _onZoomStateChanged,
       colorPickerStateKeys: widget.colorPickerShortcuts,
       inspectorStateKeys: widget.widgetInspectorShortcuts,
+      inspectAndCompareKeys: widget.widgetInspectAndCompareShortcuts,
       zoomStateKeys: widget.zoomShortcuts,
     );
 
     if (_isEnabled && widget.areKeyboardShortcutsEnabled) {
       _keyboardHandler.register();
     }
+  }
+
+  // Gestures Helper
+
+  BoxInfo? _computeBoxInfoAt(
+    Offset offset, {
+    bool includeContainerRenderBox = true,
+  }) {
+    final boxes = InspectorUtils.onTap(
+      _absorbPointerKey.currentContext!,
+      offset,
+    );
+
+    if (boxes.isEmpty) return null;
+
+    final overlayOffset =
+        (_stackKey.currentContext!.findRenderObject() as RenderStack)
+            .localToGlobal(Offset.zero);
+
+    return BoxInfo.fromHitTestResults(
+      boxes,
+      overlayOffset: overlayOffset,
+      includeContainerRenderBox: includeContainerRenderBox,
+    );
   }
 
   // Gestures
@@ -175,22 +211,9 @@ class InspectorState extends State<Inspector> {
     }
 
     if (pointerOffset == null) return;
-
-    final boxes = InspectorUtils.onTap(
-      _absorbPointerKey.currentContext!,
-      pointerOffset,
-    );
-
-    if (boxes.isEmpty) return;
-
-    final overlayOffset =
-        (_stackKey.currentContext!.findRenderObject() as RenderStack)
-            .localToGlobal(Offset.zero);
-
-    _currentRenderBoxNotifier.value = BoxInfo.fromHitTestResults(
-      boxes,
-      overlayOffset: overlayOffset,
-    );
+    _hoveredRenderBoxNotifier.value = null;
+    _comparedRenderBoxNotifier.value = null;
+    _currentRenderBoxNotifier.value = _computeBoxInfoAt(pointerOffset);
   }
 
   void _onPointerMove(Offset pointerOffset) {
@@ -209,7 +232,39 @@ class InspectorState extends State<Inspector> {
     _pointerHoverPosition = pointerOffset;
     if (_zoomStateNotifier.value) {
       _onZoomHover(pointerOffset);
+      return;
     }
+
+    if (!_inspectorStateNotifier.value) {
+      return;
+    }
+
+    if (_inspectorStateNotifier.value &&
+        _inspectAndCompareStateNotifier.value) {
+      _hoveredRenderBoxNotifier.value = null;
+      final compare =
+          _computeBoxInfoAt(pointerOffset, includeContainerRenderBox: false);
+      if (compare?.targetRenderBox !=
+          _currentRenderBoxNotifier.value?.targetRenderBox) {
+        _comparedRenderBoxNotifier.value = compare;
+      } else {
+        _comparedRenderBoxNotifier.value = null;
+      }
+    } else {
+      final hover =
+          _computeBoxInfoAt(pointerOffset, includeContainerRenderBox: false);
+      // Avoid updating hovered box if it's the same as the current box
+      if (hover?.targetRenderBox !=
+          _currentRenderBoxNotifier.value?.targetRenderBox) {
+        _hoveredRenderBoxNotifier.value = hover;
+      } else {
+        _hoveredRenderBoxNotifier.value = null;
+      }
+    }
+  }
+
+  void _onPointerExit(Offset pointerOffset) {
+    _hoveredRenderBoxNotifier.value = null;
   }
 
   // Inspector
@@ -227,6 +282,25 @@ class InspectorState extends State<Inspector> {
       _onZoomStateChanged(false);
     } else {
       _currentRenderBoxNotifier.value = null;
+      _hoveredRenderBoxNotifier.value = null;
+      _comparedRenderBoxNotifier.value = null;
+    }
+  }
+
+  void _onInspectAndCompareChanged(bool isEnabled) {
+    if (!widget.isWidgetInspectorEnabled) return;
+    if (!widget.isWidgetInspectAndCompareEnabled) {
+      _inspectAndCompareStateNotifier.value = false;
+      return;
+    }
+
+    _inspectAndCompareStateNotifier.value = isEnabled;
+
+    if (isEnabled) {
+      _onColorPickerStateChanged(false);
+      _onZoomStateChanged(false);
+    } else {
+      _comparedRenderBoxNotifier.value = null;
     }
   }
 
@@ -242,6 +316,7 @@ class InspectorState extends State<Inspector> {
 
     if (isEnabled) {
       _onInspectorStateChanged(false);
+      _onInspectAndCompareChanged(false);
       _onZoomStateChanged(false);
 
       WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -276,6 +351,7 @@ class InspectorState extends State<Inspector> {
 
     if (isEnabled) {
       _onInspectorStateChanged(false);
+      _onInspectAndCompareChanged(false);
       _onColorPickerStateChanged(false);
       _zoomScaleNotifier.value = 2.0;
 
@@ -387,7 +463,20 @@ class InspectorState extends State<Inspector> {
   @override
   void dispose() {
     _image?.dispose();
-    _byteDataStateNotifier.value = null;
+    _byteDataStateNotifier.dispose();
+    _currentRenderBoxNotifier.dispose();
+    _hoveredRenderBoxNotifier.dispose();
+    _comparedRenderBoxNotifier.dispose();
+    _inspectAndCompareStateNotifier.dispose();
+    _inspectorStateNotifier.dispose();
+    _colorPickerStateNotifier.dispose();
+    _zoomStateNotifier.dispose();
+    _selectedColorOffsetNotifier.dispose();
+    _selectedColorStateNotifier.dispose();
+    _zoomImageOffsetNotifier.dispose();
+    _zoomScaleNotifier.dispose();
+    _zoomOverlayOffsetNotifier.dispose();
+
     _keyboardHandler.dispose();
     super.dispose();
   }
@@ -423,23 +512,26 @@ class InspectorState extends State<Inspector> {
                   _inspectorStateNotifier.value ||
                   _zoomStateNotifier.value;
 
-              return Listener(
-                behavior: HitTestBehavior.translucent,
-                onPointerUp: (e) => _onTap(e.position),
-                onPointerMove: (e) => _onPointerMove(e.position),
-                onPointerDown: (e) => _onPointerMove(e.position),
-                onPointerHover: (e) => _onPointerHover(e.position),
-                onPointerSignal: (event) {
-                  if (event is PointerScrollEvent) {
-                    _onPointerScroll(event);
-                  }
-                },
-                child: RepaintBoundary(
-                  key: _repaintBoundaryKey,
-                  child: AbsorbPointer(
-                    key: _absorbPointerKey,
-                    absorbing: isAbsorbingPointer,
-                    child: _child,
+              return MouseRegion(
+                onExit: (e) => _onPointerExit(e.position),
+                child: Listener(
+                  behavior: HitTestBehavior.translucent,
+                  onPointerUp: (e) => _onTap(e.position),
+                  onPointerMove: (e) => _onPointerMove(e.position),
+                  onPointerDown: (e) => _onPointerMove(e.position),
+                  onPointerHover: (e) => _onPointerHover(e.position),
+                  onPointerSignal: (event) {
+                    if (event is PointerScrollEvent) {
+                      _onPointerScroll(event);
+                    }
+                  },
+                  child: RepaintBoundary(
+                    key: _repaintBoundaryKey,
+                    child: AbsorbPointer(
+                      key: _absorbPointerKey,
+                      absorbing: isAbsorbingPointer,
+                      child: _child,
+                    ),
                   ),
                 ),
               );
@@ -475,6 +567,8 @@ class InspectorState extends State<Inspector> {
           MultiValueListenableBuilder(
             valueListenables: [
               _currentRenderBoxNotifier,
+              _hoveredRenderBoxNotifier,
+              _comparedRenderBoxNotifier,
               _inspectorStateNotifier,
               _zoomStateNotifier,
             ],
@@ -483,6 +577,8 @@ class InspectorState extends State<Inspector> {
                   ? InspectorOverlay(
                       size: constraints.biggest,
                       boxInfo: _currentRenderBoxNotifier.value,
+                      hoveredBoxInfo: _hoveredRenderBoxNotifier.value,
+                      comparedBoxInfo: _comparedRenderBoxNotifier.value,
                     )
                   : const SizedBox.shrink(),
             ),
@@ -535,15 +631,19 @@ class InspectorState extends State<Inspector> {
             child: MultiValueListenableBuilder(
               valueListenables: [
                 _inspectorStateNotifier,
+                _inspectAndCompareStateNotifier,
                 _colorPickerStateNotifier,
                 _zoomStateNotifier,
                 _byteDataStateNotifier,
               ],
               builder: (context) => InspectorPanel(
                 isInspectorEnabled: _inspectorStateNotifier.value,
+                isInspectAndCompareEnabled:
+                    _inspectAndCompareStateNotifier.value,
                 isColorPickerEnabled: _colorPickerStateNotifier.value,
                 isZoomEnabled: _zoomStateNotifier.value,
                 onInspectorStateChanged: _onInspectorStateChanged,
+                onInspectAndCompareChanged: _onInspectAndCompareChanged,
                 onColorPickerStateChanged: _onColorPickerStateChanged,
                 onZoomStateChanged: _onZoomStateChanged,
                 isColorPickerLoading: _byteDataStateNotifier.value == null &&

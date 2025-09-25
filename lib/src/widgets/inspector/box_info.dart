@@ -13,6 +13,7 @@ class BoxInfo {
   factory BoxInfo.fromHitTestResults(
     Iterable<RenderBox> boxes, {
     Offset overlayOffset = Offset.zero,
+    bool includeContainerRenderBox = true,
   }) {
     RenderBox? targetRenderBox;
     RenderBox? containerRenderBox;
@@ -20,7 +21,7 @@ class BoxInfo {
     for (final box in boxes) {
       targetRenderBox ??= box;
 
-      if (targetRenderBox.size < box.size) {
+      if (includeContainerRenderBox && targetRenderBox.size < box.size) {
         containerRenderBox = box;
         break;
       }
@@ -49,8 +50,11 @@ class BoxInfo {
   Rect get containerRectShifted => targetRect.shift(-overlayOffset);
 
   double? get paddingLeft => paddingRectLeft?.width;
+
   double? get paddingRight => paddingRectRight?.width;
+
   double? get paddingTop => paddingRectTop?.height;
+
   double? get paddingBottom => paddingRectBottom?.height;
 
   Rect? get paddingRectLeft => containerRect != null

@@ -4,8 +4,10 @@ class InspectorPanel extends StatefulWidget {
   const InspectorPanel({
     Key? key,
     required this.isInspectorEnabled,
+    required this.isInspectAndCompareEnabled,
     required this.isColorPickerEnabled,
     this.onInspectorStateChanged,
+    this.onInspectAndCompareChanged,
     this.onColorPickerStateChanged,
     required this.isColorPickerLoading,
     required this.isZoomEnabled,
@@ -15,6 +17,9 @@ class InspectorPanel extends StatefulWidget {
 
   final bool isInspectorEnabled;
   final ValueChanged<bool>? onInspectorStateChanged;
+
+  final bool isInspectAndCompareEnabled;
+  final ValueChanged<bool>? onInspectAndCompareChanged;
 
   final bool isColorPickerEnabled;
   final ValueChanged<bool>? onColorPickerStateChanged;
@@ -33,7 +38,9 @@ class _InspectorPanelState extends State<InspectorPanel> {
   bool _isVisible = true;
 
   bool get _isInspectorEnabled => widget.onInspectorStateChanged != null;
+
   bool get _isColorPickerEnabled => widget.onColorPickerStateChanged != null;
+
   bool get _isZoomEnabled => widget.onZoomStateChanged != null;
 
   void _toggleVisibility() {

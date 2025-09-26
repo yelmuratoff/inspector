@@ -58,15 +58,10 @@ class _InspectorOverlayState extends State<InspectorOverlay> {
     return SizedBox(
       width: widget.size.width,
       height: widget.size.height,
-      child: ValueListenableBuilder(
-        valueListenable: _panelVisibilityNotifier,
-        builder: (context, bool isVisible, _) => BoxInfoWidget(
-          boxInfo: widget.boxInfo,
-          hoveredBoxInfo: widget.hoveredBoxInfo,
-          comparedBoxInfo: widget.comparedBoxInfo,
-          isPanelVisible: isVisible,
-          onPanelVisibilityChanged: (v) => _panelVisibilityNotifier.value = v,
-        ),
+      child: BoxInfoWidget(
+        boxInfo: widget.boxInfo,
+        hoveredBoxInfo: widget.hoveredBoxInfo,
+        comparedBoxInfo: widget.comparedBoxInfo,
       ),
     );
   }

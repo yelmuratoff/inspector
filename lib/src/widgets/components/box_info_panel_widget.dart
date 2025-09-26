@@ -9,19 +9,11 @@ class BoxInfoPanelWidget extends StatelessWidget {
   const BoxInfoPanelWidget({
     Key? key,
     required this.boxInfo,
-    required this.targetColor,
-    required this.containerColor,
-    required this.onVisibilityChanged,
-    this.isVisible = true,
     this.comparedBoxInfo,
   }) : super(key: key);
 
-  final bool isVisible;
-  final ValueChanged<bool> onVisibilityChanged;
   final BoxInfo boxInfo;
   final BoxInfo? comparedBoxInfo;
-  final Color targetColor;
-  final Color containerColor;
 
   Widget _buildInfoRow(
     BuildContext context, {

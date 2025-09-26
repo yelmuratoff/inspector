@@ -8,8 +8,6 @@ import 'overlay_painter.dart';
 class BoxInfoWidget extends StatelessWidget {
   const BoxInfoWidget({
     Key? key,
-    required this.isPanelVisible,
-    required this.onPanelVisibilityChanged,
     this.boxInfo,
     this.hoveredBoxInfo,
     this.comparedBoxInfo,
@@ -19,12 +17,7 @@ class BoxInfoWidget extends StatelessWidget {
   final BoxInfo? hoveredBoxInfo;
   final BoxInfo? comparedBoxInfo;
 
-  final bool isPanelVisible;
-  final ValueChanged<bool> onPanelVisibilityChanged;
-
   Color get _targetColor => Colors.blue.shade700;
-
-  Color get _compareColor => Colors.blue.shade300;
 
   Color get _containerColor => Colors.yellow.shade700;
 
@@ -50,10 +43,6 @@ class BoxInfoWidget extends StatelessWidget {
     return BoxInfoPanelWidget(
       boxInfo: boxInfo!,
       comparedBoxInfo: comparedBoxInfo,
-      targetColor: _targetColor,
-      containerColor: _containerColor,
-      isVisible: isPanelVisible,
-      onVisibilityChanged: onPanelVisibilityChanged,
     );
   }
 

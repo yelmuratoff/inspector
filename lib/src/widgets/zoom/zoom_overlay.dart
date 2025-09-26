@@ -1,8 +1,7 @@
 import 'dart:async';
-
-import 'package:flutter/material.dart';
 import 'dart:ui' as ui;
 
+import 'package:flutter/material.dart';
 import 'package:inspector/src/widgets/components/information_box_widget.dart';
 
 class ZoomOverlayWidget extends StatelessWidget {
@@ -10,7 +9,6 @@ class ZoomOverlayWidget extends StatelessWidget {
     Key? key,
     required this.image,
     required this.imageOffset,
-    required this.overlayOffset,
     required this.overlaySize,
     required this.zoomScale,
     required this.pixelRatio,
@@ -18,7 +16,6 @@ class ZoomOverlayWidget extends StatelessWidget {
 
   final ui.Image image;
   final Offset imageOffset;
-  final Offset overlayOffset;
   final double overlaySize;
   final double zoomScale;
   final double pixelRatio;
@@ -47,16 +44,17 @@ class ZoomOverlayWidget extends StatelessWidget {
       child: Stack(
         children: [
           Positioned.fill(
-            child: CustomPaint(
-              isComplex: true,
-              willChange: true,
-              painter: _ZoomPainter(
-                image: image,
-                imageOffset: imageOffset,
-                overlayOffset: overlayOffset,
-                overlaySize: overlaySize,
-                zoomScale: zoomScale,
-                pixelRatio: pixelRatio,
+            child: RepaintBoundary(
+              child: CustomPaint(
+                isComplex: true,
+                willChange: true,
+                painter: _ZoomPainter(
+                  image: image,
+                  imageOffset: imageOffset,
+                  overlaySize: overlaySize,
+                  zoomScale: zoomScale,
+                  pixelRatio: pixelRatio,
+                ),
               ),
             ),
           ),
@@ -77,7 +75,6 @@ class _ZoomPainter extends CustomPainter {
   _ZoomPainter({
     required this.image,
     required this.imageOffset,
-    required this.overlayOffset,
     required this.overlaySize,
     required this.zoomScale,
     required this.pixelRatio,
@@ -85,7 +82,6 @@ class _ZoomPainter extends CustomPainter {
 
   final ui.Image image;
   final Offset imageOffset;
-  final Offset overlayOffset;
   final double overlaySize;
   final double zoomScale;
   final double pixelRatio;
@@ -104,7 +100,7 @@ class _ZoomPainter extends CustomPainter {
   bool shouldRepaint(_ZoomPainter oldDelegate) =>
       oldDelegate.image != image ||
       oldDelegate.imageOffset != imageOffset ||
-      oldDelegate.overlayOffset != overlayOffset ||
+      oldDelegate.pixelRatio != pixelRatio ||
       oldDelegate.overlaySize != overlaySize ||
       oldDelegate.zoomScale != zoomScale;
 }

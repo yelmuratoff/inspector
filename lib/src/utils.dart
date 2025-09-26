@@ -3,16 +3,6 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
 
 class InspectorUtils {
-  static RenderViewport? findAncestorViewport(RenderObject box) {
-    if (box is RenderViewport) return box;
-
-    if (box.parent != null && box.parent is RenderObject) {
-      return findAncestorViewport(box.parent! as RenderObject);
-    }
-
-    return null;
-  }
-
   static RenderBox? _bypassAbsorbPointer(RenderProxyBox renderObject) {
     RenderBox _lastObject = renderObject;
 

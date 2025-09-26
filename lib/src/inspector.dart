@@ -615,7 +615,6 @@ class InspectorState extends State<Inspector> {
                 child: IgnorePointer(
                   child: ZoomOverlayWidget(
                     image: _image!,
-                    overlayOffset: offset,
                     imageOffset: imageOffset,
                     overlaySize: overlaySize,
                     zoomScale: zoomScale,

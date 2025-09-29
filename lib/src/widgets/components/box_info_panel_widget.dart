@@ -244,7 +244,7 @@ class BoxInfoPanelWidget extends StatelessWidget {
                   iconColor: style.color,
                   backgroundColor: theme.chipTheme.backgroundColor,
                   child: Text(
-                    _renderParagraph.text.style?.color != null
+                    style?.color != null
                         ? '#${colorToHexString(style.color!, withAlpha: true)}'
                         : 'n/a',
                     style: TextStyle(

@@ -47,6 +47,7 @@ class Inspector extends StatefulWidget {
     this.areKeyboardShortcutsEnabled = true,
     this.isPanelVisible = true,
     this.isWidgetInspectorEnabled = true,
+    this.isWidgetInspectorHoverEnabled = true,
     this.isWidgetInspectAndCompareEnabled = true,
     this.isColorPickerEnabled = true,
     this.isColorPickerColorSchemeHintEnabled = true,
@@ -77,6 +78,7 @@ class Inspector extends StatefulWidget {
   final bool areKeyboardShortcutsEnabled;
   final bool isPanelVisible;
   final bool isWidgetInspectorEnabled;
+  final bool isWidgetInspectorHoverEnabled;
   final bool isWidgetInspectAndCompareEnabled;
   final bool isColorPickerEnabled;
   final bool isZoomEnabled;
@@ -250,7 +252,7 @@ class InspectorState extends State<Inspector> {
       } else {
         _comparedRenderBoxNotifier.value = null;
       }
-    } else {
+    } else if (widget.isWidgetInspectorHoverEnabled) {
       final hover =
           _computeBoxInfoAt(pointerOffset, includeContainerRenderBox: false);
       // Avoid updating hovered box if it's the same as the current box
@@ -288,8 +290,8 @@ class InspectorState extends State<Inspector> {
   }
 
   void _onInspectAndCompareChanged(bool isEnabled) {
-    if (!widget.isWidgetInspectorEnabled) return;
-    if (!widget.isWidgetInspectAndCompareEnabled) {
+    if (!widget.isWidgetInspectorEnabled ||
+        !widget.isWidgetInspectAndCompareEnabled) {
       _inspectAndCompareStateNotifier.value = false;
       return;
     }

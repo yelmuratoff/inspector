@@ -180,76 +180,103 @@ class BoxInfoPanelWidget extends StatelessWidget {
     );
   }
 
+  List<TextStyle> _extractTextStyles(
+    InlineSpan span, [
+    List<TextStyle>? styles,
+  ]) {
+    styles ??= [];
+
+    if (span.style != null) {
+      styles.add(span.style!);
+    }
+
+    if (span is TextSpan && span.children != null) {
+      for (final child in span.children!) {
+        _extractTextStyles(child, styles);
+      }
+    }
+
+    return styles;
+  }
+
   Widget _buildRenderParagraphInfo(BuildContext context) {
     final theme = Theme.of(context);
     final _renderParagraph = boxInfo.targetRenderBox as RenderParagraph;
 
-    final style = _renderParagraph.text.style;
+    final styles = _extractTextStyles(_renderParagraph.text);
 
-    if (style == null) return const SizedBox.shrink();
+    if (styles.isEmpty) return const SizedBox.shrink();
 
-    return Wrap(
-      spacing: 12.0,
-      runSpacing: 8.0,
-      children: [
-        _buildInfoRow(
-          context,
-          icon: Icons.font_download,
-          subtitle: 'font family',
-          backgroundColor: theme.chipTheme.backgroundColor,
-          child: Text(style.fontFamily ?? 'n/a'),
-        ),
-        _buildInfoRow(
-          context,
-          icon: Icons.format_size,
-          subtitle: 'font size',
-          backgroundColor: theme.chipTheme.backgroundColor,
-          child: Text(style.fontSize?.toStringAsFixed(1) ?? 'n/a'),
-        ),
-        _buildInfoRow(
-          context,
-          icon: Icons.text_format,
-          subtitle: 'decoration',
-          backgroundColor: theme.chipTheme.backgroundColor,
-          child: Text(style.decoration?.toString() ?? 'n/a'),
-        ),
-        _buildInfoRow(
-          context,
-          icon: Icons.color_lens,
-          subtitle: 'color',
-          iconColor: style.color,
-          backgroundColor: theme.chipTheme.backgroundColor,
-          child: Text(
-            _renderParagraph.text.style?.color != null
-                ? '#${colorToHexString(style.color!, withAlpha: true)}'
-                : 'n/a',
-            style: TextStyle(
-              color: style.color,
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      spacing: 4,
+      children: styles
+          .map(
+            (style) => Wrap(
+              spacing: 12.0,
+              runSpacing: 8.0,
+              children: [
+                _buildInfoRow(
+                  context,
+                  icon: Icons.font_download,
+                  subtitle: 'font family',
+                  backgroundColor: theme.chipTheme.backgroundColor,
+                  child: Text(style.fontFamily ?? 'n/a'),
+                ),
+                _buildInfoRow(
+                  context,
+                  icon: Icons.format_size,
+                  subtitle: 'font size',
+                  backgroundColor: theme.chipTheme.backgroundColor,
+                  child: Text(style.fontSize?.toStringAsFixed(1) ?? 'n/a'),
+                ),
+                _buildInfoRow(
+                  context,
+                  icon: Icons.text_format,
+                  subtitle: 'decoration',
+                  backgroundColor: theme.chipTheme.backgroundColor,
+                  child: Text(style.decoration?.toString() ?? 'n/a'),
+                ),
+                _buildInfoRow(
+                  context,
+                  icon: Icons.color_lens,
+                  subtitle: 'color',
+                  iconColor: style.color,
+                  backgroundColor: theme.chipTheme.backgroundColor,
+                  child: Text(
+                    _renderParagraph.text.style?.color != null
+                        ? '#${colorToHexString(style.color!, withAlpha: true)}'
+                        : 'n/a',
+                    style: TextStyle(
+                      color: style.color,
+                    ),
+                  ),
+                ),
+                _buildInfoRow(
+                  context,
+                  icon: Icons.height,
+                  subtitle: 'height',
+                  backgroundColor: theme.chipTheme.backgroundColor,
+                  child: Text(style.height?.toStringAsFixed(1) ?? 'n/a'),
+                ),
+                _buildInfoRow(
+                  context,
+                  icon: Icons.horizontal_distribute,
+                  subtitle: 'Letter Spacing',
+                  backgroundColor: theme.chipTheme.backgroundColor,
+                  child: Text(style.letterSpacing?.toStringAsFixed(1) ?? 'n/a'),
+                ),
+                _buildInfoRow(
+                  context,
+                  icon: Icons.line_weight,
+                  subtitle: 'weight',
+                  backgroundColor: theme.chipTheme.backgroundColor,
+                  child: Text(style.fontWeight?.toString() ?? 'n/a'),
+                ),
+              ],
             ),
-          ),
-        ),
-        _buildInfoRow(
-          context,
-          icon: Icons.height,
-          subtitle: 'height',
-          backgroundColor: theme.chipTheme.backgroundColor,
-          child: Text(style.height?.toStringAsFixed(1) ?? 'n/a'),
-        ),
-        _buildInfoRow(
-          context,
-          icon: Icons.horizontal_distribute,
-          subtitle: 'Letter Spacing',
-          backgroundColor: theme.chipTheme.backgroundColor,
-          child: Text(style.letterSpacing?.toStringAsFixed(1) ?? 'n/a'),
-        ),
-        _buildInfoRow(
-          context,
-          icon: Icons.line_weight,
-          subtitle: 'weight',
-          backgroundColor: theme.chipTheme.backgroundColor,
-          child: Text(style.fontWeight?.toString() ?? 'n/a'),
-        ),
-      ],
+          )
+          .toList(),
     );
   }
 

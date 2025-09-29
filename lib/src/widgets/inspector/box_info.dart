@@ -21,6 +21,11 @@ class BoxInfo {
     for (final box in boxes) {
       targetRenderBox ??= box;
 
+      if (targetRenderBox.size > box.size) {
+        targetRenderBox = box;
+        continue;
+      }
+
       if (includeContainerRenderBox && targetRenderBox.size < box.size) {
         containerRenderBox = box;
         break;

@@ -44,17 +44,15 @@ class ZoomOverlayWidget extends StatelessWidget {
       child: Stack(
         children: [
           Positioned.fill(
-            child: RepaintBoundary(
-              child: CustomPaint(
-                isComplex: true,
-                willChange: true,
-                painter: _ZoomPainter(
-                  image: image,
-                  imageOffset: imageOffset,
-                  overlaySize: overlaySize,
-                  zoomScale: zoomScale,
-                  pixelRatio: pixelRatio,
-                ),
+            child: CustomPaint(
+              isComplex: true,
+              willChange: true,
+              painter: _ZoomPainter(
+                image: image,
+                imageOffset: imageOffset,
+                overlaySize: overlaySize,
+                zoomScale: zoomScale,
+                pixelRatio: pixelRatio,
               ),
             ),
           ),

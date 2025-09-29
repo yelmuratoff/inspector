@@ -48,13 +48,11 @@ class BoxInfoWidget extends StatelessWidget {
 
   Widget _buildBoxOverlay(BuildContext context, BoxInfo boxInfo) {
     return IgnorePointer(
-      child: RepaintBoundary(
-        child: CustomPaint(
-          painter: OverlayPainter(
-            boxInfo: boxInfo,
-            targetRectColor: _targetColor.withOpacity(0.35),
-            containerRectColor: _containerColor.withOpacity(0.35),
-          ),
+      child: CustomPaint(
+        painter: OverlayPainter(
+          boxInfo: boxInfo,
+          targetRectColor: _targetColor.withOpacity(0.35),
+          containerRectColor: _containerColor.withOpacity(0.35),
         ),
       ),
     );

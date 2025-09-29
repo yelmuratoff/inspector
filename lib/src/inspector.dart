@@ -173,7 +173,7 @@ class InspectorState extends State<Inspector> {
     Offset offset, {
     bool includeContainerRenderBox = true,
   }) {
-    final boxes = InspectorUtils.onTap(
+    final boxes = InspectorUtils.findRenderObjectsAt(
       _absorbPointerKey.currentContext!,
       offset,
     );

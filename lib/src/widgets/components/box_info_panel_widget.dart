@@ -78,13 +78,14 @@ class BoxInfoPanelWidget extends StatelessWidget {
           ),
           backgroundColor: theme.chipTheme.backgroundColor,
         ),
-        _buildInfoRow(
-          context,
-          icon: Icons.straighten,
-          subtitle: 'padding (LTRB)',
-          child: Text(boxInfo.describePadding()),
-          backgroundColor: theme.chipTheme.backgroundColor,
-        ),
+        if (boxInfo.containerRect != null)
+          _buildInfoRow(
+            context,
+            icon: Icons.straighten,
+            subtitle: 'padding (LTRB)',
+            child: Text(boxInfo.describePadding()),
+            backgroundColor: theme.chipTheme.backgroundColor,
+          ),
       ],
     );
   }

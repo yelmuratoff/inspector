@@ -242,15 +242,11 @@ class BoxInfoPanelWidget extends StatelessWidget {
                   context,
                   icon: Icons.color_lens,
                   subtitle: 'color',
-                  iconColor: style.color,
                   backgroundColor: theme.chipTheme.backgroundColor,
                   child: Text(
-                    style?.color != null
+                    style.color != null
                         ? '#${colorToHexString(style.color!, withAlpha: true)}'
                         : 'n/a',
-                    style: TextStyle(
-                      color: style.color,
-                    ),
                   ),
                 ),
                 _buildInfoRow(

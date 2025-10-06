@@ -14,25 +14,24 @@ class BoxInfo {
     Iterable<RenderBox> boxes, {
     Offset overlayOffset = Offset.zero,
   }) {
-    RenderBox? targetRenderBox;
+    RenderBox targetRenderBox = boxes.first;
     RenderBox? containerRenderBox;
 
     for (final box in boxes) {
-      targetRenderBox ??= box;
-
-      if (targetRenderBox.size > box.size) {
+      if (box.size <= targetRenderBox.size) {
         targetRenderBox = box;
-        continue;
       }
+    }
 
-      if (targetRenderBox.size < box.size) {
+    for (final box in boxes) {
+      if (box.size > targetRenderBox.size &&
+          (containerRenderBox == null || box.size <= containerRenderBox.size)) {
         containerRenderBox = box;
-        break;
       }
     }
 
     return BoxInfo(
-      targetRenderBox: targetRenderBox!,
+      targetRenderBox: targetRenderBox,
       containerRenderBox: containerRenderBox,
       overlayOffset: overlayOffset,
     );

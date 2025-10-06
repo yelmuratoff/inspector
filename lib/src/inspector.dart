@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:ui' as ui;
 
 import 'package:flutter/foundation.dart';
@@ -222,6 +223,29 @@ class InspectorState extends State<Inspector> {
     if (_zoomStateNotifier.value) {
       _onZoomHover(pointerOffset);
     }
+  }
+
+  Timer? _onPointerHoverDebounce;
+
+  /// Debounces pointer hover events to prevent [_onPointerHover] from being called
+  /// too frequently.
+  ///
+  /// [_onPointerHover] internally calls `_computeBoxInfoAt`, which can be **computationally heavy**,
+  /// because it performs hit-testing and computes layout information for multiple RenderBoxes.
+  ///
+  /// This debounced method ensures that `_computeBoxInfoAt` is **not called more than once per event loop cycle**,
+  /// even if multiple hover events occur in quick succession.
+  ///
+  /// The timer is **not periodic**: it waits until the current `_computeBoxInfoAt` call completes
+  /// before allowing the next one to be scheduled.
+  ///
+  /// [pointerOffset] is the position of the pointer in global coordinates.
+  void _onPointerHoverDebounced(Offset pointerOffset) {
+    if (_onPointerHoverDebounce?.isActive ?? false) return;
+    _onPointerHoverDebounce = Timer(
+      const Duration(milliseconds: 0),
+      () => _onPointerHover(pointerOffset),
+    );
   }
 
   void _onPointerHover(Offset pointerOffset) {
@@ -470,6 +494,7 @@ class InspectorState extends State<Inspector> {
     _zoomImageOffsetNotifier.dispose();
     _zoomScaleNotifier.dispose();
     _zoomOverlayOffsetNotifier.dispose();
+    _onPointerHoverDebounce?.cancel();
 
     _keyboardHandler.dispose();
     super.dispose();
@@ -513,7 +538,7 @@ class InspectorState extends State<Inspector> {
                   onPointerUp: (e) => _onTap(e.position),
                   onPointerMove: (e) => _onPointerMove(e.position),
                   onPointerDown: (e) => _onPointerMove(e.position),
-                  onPointerHover: (e) => _onPointerHover(e.position),
+                  onPointerHover: (e) => _onPointerHoverDebounced(e.position),
                   onPointerSignal: (event) {
                     if (event is PointerScrollEvent) {
                       _onPointerScroll(event);

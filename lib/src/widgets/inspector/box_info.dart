@@ -1,4 +1,5 @@
 import 'package:flutter/rendering.dart';
+import 'package:inspector/src/renderbox_extension.dart';
 import 'package:inspector/src/size_extension.dart';
 
 /// Contains information about the currently selected [RenderBox].
@@ -14,21 +15,30 @@ class BoxInfo {
   factory BoxInfo.fromHitTestResults(
     Iterable<RenderBox> boxes, {
     Offset overlayOffset = Offset.zero,
+    bool findContainer = false,
   }) {
     RenderBox targetRenderBox = boxes.first;
     RenderBox? containerRenderBox;
 
+    /// Used [isSmallerThan] to find the smallest box under the cursor
     for (final box in boxes) {
       if (box.size.isSmallerThan(targetRenderBox.size)) {
         targetRenderBox = box;
       }
     }
 
-    for (final box in boxes) {
-      if (box.size.isGreaterThan(targetRenderBox.size) &&
-          (containerRenderBox == null ||
-              box.size.isSmallerThan(containerRenderBox.size))) {
-        containerRenderBox = box;
+    if (findContainer) {
+      /// The >= is used to check whether the item is fully contained by the other box.
+      /// The isGreaterThan is used to avoid selecting the same box as the target box.
+      for (final box in boxes) {
+        if (box.size >= targetRenderBox.size &&
+            box.size.isGreaterThan(targetRenderBox.size)) {
+          if ((containerRenderBox == null ||
+                  box.size.isSmallerThan(containerRenderBox.size)) &&
+              targetRenderBox.isDescendantOf(box)) {
+            containerRenderBox = box;
+          }
+        }
       }
     }
 

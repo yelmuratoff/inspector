@@ -170,7 +170,7 @@ class InspectorState extends State<Inspector> {
 
   // Gestures Helper
 
-  BoxInfo? _computeBoxInfoAt(Offset offset) {
+  BoxInfo? _computeBoxInfoAt(Offset offset, {bool findContainer = false}) {
     final boxes = InspectorUtils.findRenderObjectsAt(
         _absorbPointerKey.currentContext!, offset);
 
@@ -183,6 +183,7 @@ class InspectorState extends State<Inspector> {
     return BoxInfo.fromHitTestResults(
       boxes,
       overlayOffset: overlayOffset,
+      findContainer: findContainer,
     );
   }
 
@@ -210,7 +211,10 @@ class InspectorState extends State<Inspector> {
     if (pointerOffset == null) return;
     _hoveredRenderBoxNotifier.value = null;
     _comparedRenderBoxNotifier.value = null;
-    _currentRenderBoxNotifier.value = _computeBoxInfoAt(pointerOffset);
+    _currentRenderBoxNotifier.value = _computeBoxInfoAt(
+      pointerOffset,
+      findContainer: true,
+    );
   }
 
   void _onPointerMove(Offset pointerOffset) {

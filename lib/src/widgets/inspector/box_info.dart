@@ -1,4 +1,5 @@
 import 'package:flutter/rendering.dart';
+import 'package:inspector/src/size_extension.dart';
 
 /// Contains information about the currently selected [RenderBox].
 ///
@@ -18,14 +19,15 @@ class BoxInfo {
     RenderBox? containerRenderBox;
 
     for (final box in boxes) {
-      if (box.size <= targetRenderBox.size) {
+      if (box.size.isSmallerThan(targetRenderBox.size)) {
         targetRenderBox = box;
       }
     }
 
     for (final box in boxes) {
-      if (box.size > targetRenderBox.size &&
-          (containerRenderBox == null || box.size <= containerRenderBox.size)) {
+      if (box.size.isGreaterThan(targetRenderBox.size) &&
+          (containerRenderBox == null ||
+              box.size.isSmallerThan(containerRenderBox.size))) {
         containerRenderBox = box;
       }
     }

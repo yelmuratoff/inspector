@@ -13,7 +13,6 @@ class BoxInfo {
   factory BoxInfo.fromHitTestResults(
     Iterable<RenderBox> boxes, {
     Offset overlayOffset = Offset.zero,
-    bool includeContainerRenderBox = true,
   }) {
     RenderBox? targetRenderBox;
     RenderBox? containerRenderBox;
@@ -26,7 +25,7 @@ class BoxInfo {
         continue;
       }
 
-      if (includeContainerRenderBox && targetRenderBox.size < box.size) {
+      if (targetRenderBox.size < box.size) {
         containerRenderBox = box;
         break;
       }

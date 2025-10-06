@@ -169,14 +169,9 @@ class InspectorState extends State<Inspector> {
 
   // Gestures Helper
 
-  BoxInfo? _computeBoxInfoAt(
-    Offset offset, {
-    bool includeContainerRenderBox = true,
-  }) {
+  BoxInfo? _computeBoxInfoAt(Offset offset) {
     final boxes = InspectorUtils.findRenderObjectsAt(
-      _absorbPointerKey.currentContext!,
-      offset,
-    );
+        _absorbPointerKey.currentContext!, offset);
 
     if (boxes.isEmpty) return null;
 
@@ -187,7 +182,6 @@ class InspectorState extends State<Inspector> {
     return BoxInfo.fromHitTestResults(
       boxes,
       overlayOffset: overlayOffset,
-      includeContainerRenderBox: includeContainerRenderBox,
     );
   }
 
@@ -244,8 +238,7 @@ class InspectorState extends State<Inspector> {
     if (_inspectorStateNotifier.value &&
         _inspectAndCompareStateNotifier.value) {
       _hoveredRenderBoxNotifier.value = null;
-      final compare =
-          _computeBoxInfoAt(pointerOffset, includeContainerRenderBox: false);
+      final compare = _computeBoxInfoAt(pointerOffset);
       if (compare?.targetRenderBox !=
           _currentRenderBoxNotifier.value?.targetRenderBox) {
         _comparedRenderBoxNotifier.value = compare;
@@ -253,8 +246,7 @@ class InspectorState extends State<Inspector> {
         _comparedRenderBoxNotifier.value = null;
       }
     } else if (widget.isWidgetInspectorHoverEnabled) {
-      final hover =
-          _computeBoxInfoAt(pointerOffset, includeContainerRenderBox: false);
+      final hover = _computeBoxInfoAt(pointerOffset);
       // Avoid updating hovered box if it's the same as the current box
       if (hover?.targetRenderBox !=
           _currentRenderBoxNotifier.value?.targetRenderBox) {

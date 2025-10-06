@@ -46,13 +46,18 @@ class BoxInfoWidget extends StatelessWidget {
     );
   }
 
-  Widget _buildBoxOverlay(BuildContext context, BoxInfo boxInfo) {
+  Widget _buildBoxOverlay(
+    BuildContext context,
+    BoxInfo boxInfo, {
+    bool showContainerRenderBox = true,
+  }) {
     return IgnorePointer(
       child: CustomPaint(
         painter: OverlayPainter(
           boxInfo: boxInfo,
           targetRectColor: _targetColor.withOpacity(0.35),
           containerRectColor: _containerColor.withOpacity(0.35),
+          showContainerRenderBox: showContainerRenderBox,
         ),
       ),
     );
@@ -65,9 +70,11 @@ class BoxInfoWidget extends StatelessWidget {
         if (boxInfo?.targetRenderBox.attached == true)
           _buildBoxOverlay(context, boxInfo!),
         if (hoveredBoxInfo?.targetRenderBox.attached == true)
-          _buildBoxOverlay(context, hoveredBoxInfo!),
+          _buildBoxOverlay(context, hoveredBoxInfo!,
+              showContainerRenderBox: false),
         if (comparedBoxInfo?.targetRenderBox.attached == true)
-          _buildBoxOverlay(context, comparedBoxInfo!),
+          _buildBoxOverlay(context, comparedBoxInfo!,
+              showContainerRenderBox: false),
         // ..._buildPaddingWidgets(context),
         if (boxInfo?.targetRenderBox.attached == true) ...[
           _buildTargetBoxSizeWidget(context),

@@ -208,7 +208,7 @@ void main() {
       await tester.tapAt(position);
       await tester.pump();
 
-      expect(find.textContaining('RenderDecoratedBox'), findsOneWidget);
+      expect(find.textContaining('RenderPadding'), findsOneWidget);
       expect(find.text('100.0 × 100.0'), findsWidgets);
       expect(find.text('50.0, 150.0, 50.0, 150.0'), findsOneWidget);
     });

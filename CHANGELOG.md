@@ -1,3 +1,9 @@
+## 3.1.0
+
+* Added "compare" functionality - if a box is selected, you can now hold `Y` and hover another box to see the difference in the boxes' position. Thanks @EArminjon!
+* Improved handling for selecting boxes - it now doesn't rely on hit testing, which should make it possible to select boxes that aren't hit-testable, but are visible on the screen. Thanks @EArminjon!
+* Better text inspection - for rich text, it'll now display all the styles applied to the text. Thanks @EArminjon!
+
 ## 3.0.0
 
 * Bump Flutter version to >=3.22.0

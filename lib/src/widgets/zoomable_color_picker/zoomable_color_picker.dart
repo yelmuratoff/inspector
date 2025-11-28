@@ -23,6 +23,7 @@ class ZoomableColorPickerOverlay extends StatelessWidget {
     required this.zoomScale,
     required this.pixelRatio,
     required this.color,
+    this.backgroundColor = const Color(0xFF1E1E1E),
   }) : super(key: key);
 
   final ui.Image image;
@@ -31,6 +32,7 @@ class ZoomableColorPickerOverlay extends StatelessWidget {
   final double zoomScale;
   final double pixelRatio;
   final Color color;
+  final Color backgroundColor;
 
   @override
   Widget build(BuildContext context) {
@@ -99,6 +101,7 @@ class ZoomableColorPickerOverlay extends StatelessWidget {
                           overlaySize: overlaySize,
                           zoomScale: zoomScale,
                           pixelRatio: pixelRatio,
+                          backgroundColor: backgroundColor,
                         ),
                       ),
                     ),
@@ -168,6 +171,7 @@ class ZoomableColorPickerOverlay extends StatelessWidget {
 ///
 /// Optimizes performance with proper shouldRepaint implementation
 /// and efficient canvas operations.
+/// Areas outside the image bounds are filled with [backgroundColor].
 class _ZoomPainter extends CustomPainter {
   const _ZoomPainter({
     required this.image,
@@ -175,6 +179,7 @@ class _ZoomPainter extends CustomPainter {
     required this.overlaySize,
     required this.zoomScale,
     required this.pixelRatio,
+    required this.backgroundColor,
   });
 
   final ui.Image image;
@@ -182,9 +187,16 @@ class _ZoomPainter extends CustomPainter {
   final double overlaySize;
   final double zoomScale;
   final double pixelRatio;
+  final Color backgroundColor;
 
   @override
   void paint(Canvas canvas, Size size) {
+    // Fill background for areas outside image bounds
+    canvas.drawRect(
+      Offset.zero & size,
+      Paint()..color = backgroundColor,
+    );
+
     final halfSize = overlaySize / 2.0;
     final scale = (1 / pixelRatio) * zoomScale;
 
@@ -201,7 +213,8 @@ class _ZoomPainter extends CustomPainter {
       imageOffset != oldDelegate.imageOffset ||
       overlaySize != oldDelegate.overlaySize ||
       zoomScale != oldDelegate.zoomScale ||
-      pixelRatio != oldDelegate.pixelRatio;
+      pixelRatio != oldDelegate.pixelRatio ||
+      backgroundColor != oldDelegate.backgroundColor;
 }
 
 /// Auto-hiding zoom level display widget with smooth fade animation.

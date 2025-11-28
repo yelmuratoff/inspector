@@ -2,18 +2,30 @@ import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 
-Color getPixelFromByteData(
+/// Returns the color of a pixel at the given [x], [y] coordinates.
+///
+Color? getPixelFromByteData(
   ByteData byteData, {
   required int width,
+  required int height,
   required int x,
   required int y,
 }) {
-  final _index = (y * width + x) * 4;
+  // Bounds check to prevent RangeError
+  if (x < 0 || x >= width || y < 0 || y >= height) {
+    return null;
+  }
 
-  final r = byteData.getUint8(_index);
-  final g = byteData.getUint8(_index + 1);
-  final b = byteData.getUint8(_index + 2);
-  final a = byteData.getUint8(_index + 3);
+  final index = (y * width + x) * 4;
+
+  if (index < 0 || index + 3 >= byteData.lengthInBytes) {
+    return null;
+  }
+
+  final r = byteData.getUint8(index);
+  final g = byteData.getUint8(index + 1);
+  final b = byteData.getUint8(index + 2);
+  final a = byteData.getUint8(index + 3);
 
   return Color.fromARGB(a, r, g, b);
 }

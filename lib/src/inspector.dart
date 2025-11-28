@@ -429,12 +429,18 @@ class InspectorState extends State<Inspector> {
     final _x = shiftedOffset.dx.round();
     final _y = shiftedOffset.dy.round();
 
-    _selectedColorStateNotifier.value = getPixelFromByteData(
+    final color = getPixelFromByteData(
       _byteDataStateNotifier.value!,
       width: _image!.width,
+      height: _image!.height,
       x: _x,
       y: _y,
     );
+
+    // Skip update if coordinates are out of bounds
+    if (color == null) return;
+
+    _selectedColorStateNotifier.value = color;
 
     final overlayOffset =
         (_stackKey.currentContext!.findRenderObject() as RenderStack)

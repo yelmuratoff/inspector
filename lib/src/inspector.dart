@@ -8,10 +8,10 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:inspector/src/keyboard_handler.dart';
 import 'package:inspector/src/widgets/zoom/zoom_overlay.dart';
+import 'package:inspector/src/widgets/zoomable_color_picker/zoomable_color_picker.dart';
 
 import './widgets/panel/inspector_panel.dart';
 import 'utils.dart';
-import 'widgets/color_picker/color_picker_overlay.dart';
 import 'widgets/color_picker/color_picker_snackbar.dart';
 import 'widgets/color_picker/utils.dart';
 import 'widgets/inspector/box_info.dart';
@@ -146,6 +146,10 @@ class InspectorState extends State<Inspector> {
   late final KeyboardHandler _keyboardHandler;
 
   Offset? _pointerHoverPosition;
+
+  static const double _overlayMinSize = 128;
+  static const double _overlayMaxSize = 246;
+  static const double _overlayOffsetY = 16;
 
   @override
   void initState() {
@@ -570,18 +574,31 @@ class InspectorState extends State<Inspector> {
             builder: (context) {
               final offset = _selectedColorOffsetNotifier.value;
               final color = _selectedColorStateNotifier.value;
+              final zoomScale = _zoomScaleNotifier.value;
+              final screenSize = MediaQuery.sizeOf(context);
+              final overlaySize = ui.lerpDouble(
+                _overlayMinSize,
+                _overlayMaxSize,
+                ((zoomScale - 2.0) / 10.0).clamp(0, 1),
+              )!;
 
               if (offset == null || color == null) {
                 return const SizedBox.shrink();
               }
 
               return Positioned(
-                left: offset.dx + 8.0,
-                top: offset.dy - 64.0,
-                child: ColorPickerOverlay(
+                left: offset.dx.clamp(0, screenSize.width - overlaySize),
+                top: (offset.dy - overlaySize - _overlayOffsetY)
+                    .clamp(0, screenSize.height),
+                child: ZoomableColorPickerOverlay(
                   color: color,
-                  isColorSchemeHintEnabled:
-                      widget.isColorPickerColorSchemeHintEnabled,
+                  // isColorSchemeHintEnabled:
+                  //     widget.isColorPickerColorSchemeHintEnabled,
+                  image: _image!,
+                  imageOffset: _extractShiftedOffset(offset),
+                  overlaySize: 128.0,
+                  zoomScale: zoomScale,
+                  pixelRatio: MediaQuery.devicePixelRatioOf(context),
                 ),
               );
             },

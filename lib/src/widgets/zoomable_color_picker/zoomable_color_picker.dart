@@ -108,16 +108,18 @@ class ZoomableColorPickerOverlay extends StatelessWidget {
                       children: [
                         // Zoomed image content
                         Positioned.fill(
-                          child: CustomPaint(
-                            isComplex: true,
-                            willChange: true,
-                            painter: _ZoomPainter(
-                              image: image,
-                              imageOffset: imageOffset,
-                              overlaySize: overlaySize,
-                              zoomScale: zoomScale,
-                              pixelRatio: pixelRatio,
-                              backgroundColor: backgroundColor,
+                          child: RepaintBoundary(
+                            child: CustomPaint(
+                              isComplex: true,
+                              willChange: true,
+                              painter: _ZoomPainter(
+                                image: image,
+                                imageOffset: imageOffset,
+                                overlaySize: overlaySize,
+                                zoomScale: zoomScale,
+                                pixelRatio: pixelRatio,
+                                backgroundColor: backgroundColor,
+                              ),
                             ),
                           ),
                         ),
@@ -220,14 +222,15 @@ class ZoomableColorPickerOverlay extends StatelessWidget {
 /// and efficient canvas operations.
 /// Areas outside the image bounds are filled with [backgroundColor].
 class _ZoomPainter extends CustomPainter {
-  const _ZoomPainter({
+  _ZoomPainter({
     required this.image,
     required this.imageOffset,
     required this.overlaySize,
     required this.zoomScale,
     required this.pixelRatio,
     required this.backgroundColor,
-  });
+  })  : _backgroundPaint = Paint()..color = backgroundColor,
+        _imagePaint = Paint()..filterQuality = FilterQuality.low;
 
   final ui.Image image;
   final Offset imageOffset;
@@ -236,13 +239,13 @@ class _ZoomPainter extends CustomPainter {
   final double pixelRatio;
   final Color backgroundColor;
 
+  final Paint _backgroundPaint;
+  final Paint _imagePaint;
+
   @override
   void paint(Canvas canvas, Size size) {
     // Fill background for areas outside image bounds
-    canvas.drawRect(
-      Offset.zero & size,
-      Paint()..color = backgroundColor,
-    );
+    canvas.drawRect(Offset.zero & size, _backgroundPaint);
 
     final halfSize = overlaySize / 2.0;
     final scale = (1 / pixelRatio) * zoomScale;
@@ -251,7 +254,7 @@ class _ZoomPainter extends CustomPainter {
       ..clipRect(Offset.zero & size)
       ..translate(halfSize, halfSize)
       ..scale(scale)
-      ..drawImage(image, -imageOffset, Paint());
+      ..drawImage(image, -imageOffset, _imagePaint);
   }
 
   @override

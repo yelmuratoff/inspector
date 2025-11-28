@@ -598,11 +598,11 @@ class InspectorState extends State<Inspector> {
                     .clamp(0, screenSize.height),
                 child: ZoomableColorPickerOverlay(
                   color: color,
-                  // isColorSchemeHintEnabled:
-                  //     widget.isColorPickerColorSchemeHintEnabled,
+                  isColorSchemeHintEnabled:
+                      widget.isColorPickerColorSchemeHintEnabled,
                   image: _image!,
                   imageOffset: _extractShiftedOffset(offset),
-                  overlaySize: 128.0,
+                  overlaySize: overlaySize,
                   zoomScale: zoomScale,
                   pixelRatio: MediaQuery.devicePixelRatioOf(context),
                 ),

@@ -40,7 +40,8 @@ class Inspector extends StatefulWidget {
   final bool isPanelVisible;
   final Alignment alignment;
   final bool? isEnabled;
-  final Widget Function(BuildContext context, InspectorController controller)?
+  final Widget Function(
+          BuildContext context, InspectorController controller, Widget child)?
       panelBuilder;
 
   static InspectorState of(BuildContext context) {
@@ -298,7 +299,7 @@ class InspectorState extends State<Inspector> {
           },
         ),
         if (widget.panelBuilder != null)
-          widget.panelBuilder!(context, _controller)
+          widget.panelBuilder!(context, _controller, widget.child)
         else if (_isPanelVisible)
           Align(
             alignment: Alignment.centerRight,

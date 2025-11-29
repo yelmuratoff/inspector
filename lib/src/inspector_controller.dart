@@ -128,7 +128,13 @@ class InspectorController {
     if (enable) {
       setMode(targetMode);
     } else if (modeNotifier.value == targetMode) {
-      setMode(InspectorMode.none);
+      // Special case: when releasing Y key in inspectAndCompare mode,
+      // return to inspector mode instead of none
+      if (targetMode == InspectorMode.inspectAndCompare) {
+        setMode(InspectorMode.inspector);
+      } else {
+        setMode(InspectorMode.none);
+      }
     }
   }
 

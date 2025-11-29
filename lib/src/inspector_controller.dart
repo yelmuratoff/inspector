@@ -27,6 +27,7 @@ class InspectorController {
     this.isWidgetInspectorEnabled = true,
     this.isWidgetInspectAndCompareEnabled = true,
     this.isColorPickerEnabled = true,
+    this.isColorSchemeHintEnabled = true,
     this.isZoomEnabled = true,
     this.widgetInspectorShortcuts = const [
       LogicalKeyboardKey.alt,
@@ -66,6 +67,7 @@ class InspectorController {
   final bool isWidgetInspectorEnabled;
   final bool isWidgetInspectAndCompareEnabled;
   final bool isColorPickerEnabled;
+  final bool isColorSchemeHintEnabled;
   final bool isZoomEnabled;
 
   final List<LogicalKeyboardKey> widgetInspectorShortcuts;

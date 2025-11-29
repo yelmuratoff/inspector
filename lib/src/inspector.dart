@@ -99,27 +99,19 @@ class InspectorState extends State<Inspector> {
     if (oldWidget.isEnabled != widget.isEnabled ||
         oldWidget.controller != widget.controller) {
       if (oldWidget.controller == null && widget.controller != null) {
-        // Disposing old internal controller if we are switching to external
         _controller.dispose();
       }
 
       if (widget.controller != null) {
         _controller = widget.controller!;
+        if (_isEnabled) {
+          _controller.registerKeyboardHandler();
+        }
       } else if (oldWidget.controller != null) {
-        // Switching from external to internal
         _controller = InspectorController(isEnabled: _isEnabled);
-        _controller.registerKeyboardHandler();
-      }
-
-      // Re-register if needed
-      if (_isEnabled) {
-        // We might need to unregister old one first if it wasn't disposed?
-        // Actually if controller changed, the old one is managed by caller (if external) or disposed (if internal).
-        // If we are using the same controller instance but isEnabled changed, we handle it.
-        // But InspectorController constructor takes isEnabled.
-        // If we use external controller, isEnabled on Inspector widget might be redundant or overriding?
-        // Let's assume external controller manages its own enabled state or we respect widget.isEnabled.
-        // For now, let's keep it simple.
+        if (_isEnabled) {
+          _controller.registerKeyboardHandler();
+        }
       }
     }
 
@@ -225,8 +217,7 @@ class InspectorState extends State<Inspector> {
                   .clamp(0, screenSize.height),
               child: ZoomableColorPickerOverlay(
                 color: color,
-                // TODO: Pass hint enabled from controller if needed
-                isColorSchemeHintEnabled: true,
+                isColorSchemeHintEnabled: _controller.isColorSchemeHintEnabled,
                 image: _controller.image!,
                 imageOffset:
                     _controller.selectedColorImageOffsetNotifier.value ??

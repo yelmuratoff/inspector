@@ -144,7 +144,7 @@ class InspectorState extends State<Inspector> {
       return widget.child;
     }
 
-    return Stack(
+    final content = Stack(
       key: _controller.stackKey,
       children: [
         Align(
@@ -298,9 +298,17 @@ class InspectorState extends State<Inspector> {
             );
           },
         ),
-        if (widget.panelBuilder != null)
-          widget.panelBuilder!(context, _controller, widget.child)
-        else if (_isPanelVisible)
+      ],
+    );
+
+    if (widget.panelBuilder != null) {
+      return widget.panelBuilder!(context, _controller, content);
+    }
+
+    return Stack(
+      children: [
+        content,
+        if (_isPanelVisible)
           Align(
             alignment: Alignment.centerRight,
             child: ValueListenableBuilder<InspectorMode>(

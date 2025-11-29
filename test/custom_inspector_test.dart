@@ -11,20 +11,26 @@ void main() {
         home: Scaffold(
           body: Inspector(
             child: const SizedBox(),
-            panelBuilder: (context, controller) {
-              return Positioned(
-                top: 0,
-                left: 0,
-                child: ElevatedButton(
-                  onPressed: () {
-                    controller.setMode(
-                      controller.modeNotifier.value == InspectorMode.inspector
-                          ? InspectorMode.none
-                          : InspectorMode.inspector,
-                    );
-                  },
-                  child: const Text('Custom Panel'),
-                ),
+            panelBuilder: (context, controller, child) {
+              return Stack(
+                children: [
+                  child,
+                  Positioned(
+                    top: 0,
+                    left: 0,
+                    child: ElevatedButton(
+                      onPressed: () {
+                        controller.setMode(
+                          controller.modeNotifier.value ==
+                                  InspectorMode.inspector
+                              ? InspectorMode.none
+                              : InspectorMode.inspector,
+                        );
+                      },
+                      child: const Text('Custom Panel'),
+                    ),
+                  ),
+                ],
               );
             },
           ),

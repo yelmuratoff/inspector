@@ -34,10 +34,10 @@ Color? getPixelFromByteData(
 ///
 /// If [withAlpha] is [true], then returns it in #AARRGGBB format.
 String colorToHexString(Color color, {bool withAlpha = false}) {
-  final a = color.alpha.toRadixString(16).padLeft(2, '0');
-  final r = color.red.toRadixString(16).padLeft(2, '0');
-  final g = color.green.toRadixString(16).padLeft(2, '0');
-  final b = color.blue.toRadixString(16).padLeft(2, '0');
+  final a = (color.a * 255).round().toRadixString(16).padLeft(2, '0');
+  final r = (color.r * 255).round().toRadixString(16).padLeft(2, '0');
+  final g = (color.g * 255).round().toRadixString(16).padLeft(2, '0');
+  final b = (color.b * 255).round().toRadixString(16).padLeft(2, '0');
 
   if (withAlpha) {
     return '$a$r$g$b';

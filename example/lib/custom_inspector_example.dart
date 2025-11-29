@@ -16,47 +16,52 @@ class CustomInspectorExample extends StatelessWidget {
         return Inspector(
           child: child!,
           panelBuilder: (context, controller, child) {
-            return DraggablePanel(
-              items: [
-                DraggablePanelItem(
-                  icon: Icons.format_shapes,
-                  enableBadge:
-                      controller.modeNotifier.value == InspectorMode.inspector,
-                  onTap: (context) {
-                    controller.setMode(
-                      controller.modeNotifier.value == InspectorMode.inspector
-                          ? InspectorMode.none
-                          : InspectorMode.inspector,
-                    );
-                  },
-                ),
-                DraggablePanelItem(
-                  icon: Icons.colorize,
-                  enableBadge: controller.modeNotifier.value ==
-                      InspectorMode.colorPicker,
-                  onTap: (context) {
-                    controller.setMode(
-                      controller.modeNotifier.value == InspectorMode.colorPicker
-                          ? InspectorMode.none
-                          : InspectorMode.colorPicker,
-                      context: context,
-                    );
-                  },
-                ),
-                DraggablePanelItem(
-                  icon: Icons.zoom_in,
-                  enableBadge:
-                      controller.modeNotifier.value == InspectorMode.zoom,
-                  onTap: (context) {
-                    controller.setMode(
-                      controller.modeNotifier.value == InspectorMode.zoom
-                          ? InspectorMode.none
-                          : InspectorMode.zoom,
-                    );
-                  },
-                ),
-              ],
+            return ListenableBuilder(
+              listenable: controller.modeNotifier,
               child: child,
+              builder: (context, child) => DraggablePanel(
+                items: [
+                  DraggablePanelItem(
+                    icon: Icons.format_shapes,
+                    enableBadge: controller.modeNotifier.value ==
+                        InspectorMode.inspector,
+                    onTap: (context) {
+                      controller.setMode(
+                        controller.modeNotifier.value == InspectorMode.inspector
+                            ? InspectorMode.none
+                            : InspectorMode.inspector,
+                      );
+                    },
+                  ),
+                  DraggablePanelItem(
+                    icon: Icons.colorize,
+                    enableBadge: controller.modeNotifier.value ==
+                        InspectorMode.colorPicker,
+                    onTap: (context) {
+                      controller.setMode(
+                        controller.modeNotifier.value ==
+                                InspectorMode.colorPicker
+                            ? InspectorMode.none
+                            : InspectorMode.colorPicker,
+                        context: context,
+                      );
+                    },
+                  ),
+                  DraggablePanelItem(
+                    icon: Icons.zoom_in,
+                    enableBadge:
+                        controller.modeNotifier.value == InspectorMode.zoom,
+                    onTap: (context) {
+                      controller.setMode(
+                        controller.modeNotifier.value == InspectorMode.zoom
+                            ? InspectorMode.none
+                            : InspectorMode.zoom,
+                      );
+                    },
+                  ),
+                ],
+                child: child,
+              ),
             );
           },
         );

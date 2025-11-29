@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:inspector/inspector.dart';
-import 'package:draggable_panel/draggable_panel.dart';
 
 void main() {
   runApp(
